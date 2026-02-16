@@ -1,0 +1,17 @@
+{
+  "dependencies": {
+    "axios": "^1.13.5",
+    "cheerio": "^1.2.0",
+    "cors": "^2.8.6",
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1",
+    "flexsearch": "^0.8.212",
+    "fuse.js": "^7.1.0",
+    "jsonwebtoken": "^9.0.3",
+    "lunr": "^2.3.9",
+    "natural": "^8.1.0",
+    "node-cache": "^5.1.2",
+    "stopword": "^3.1.5",
+    "svix": "^1.85.0"
+  }
+}
