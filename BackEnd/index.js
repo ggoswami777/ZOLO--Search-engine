@@ -3,8 +3,7 @@ const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const cookieParser = require('cookie-parser');
 const cors = require('cors');
-
-
+const wikiRoutes=require('./src/routes/wikiRoutes')
 const { Svix } = require("svix");
 const svix = new Svix("AUTH_TOKEN");
 const axios = require('axios');
@@ -39,6 +38,8 @@ app.use(cors({
 }));
 
 app.use("/api/auth" , authRoutes);
+app.use("/api/wiki", wikiRoutes);
+
 
 // Cache setup
 const cache = new NodeCache({ stdTTL: 600 });

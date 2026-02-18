@@ -1,0 +1,11 @@
+const mongoose = require("mongoose");
+
+const documentSchema = new mongoose.Schema({
+  title: String,
+  content: String,
+  source: String,
+  url: String,
+  createdAt: { type: Date, default: Date.now }
+});
+
+module.exports = mongoose.model("Document", documentSchema);
