@@ -1,6 +1,10 @@
 const express = require('express');
+const mongoose = require('mongoose');
+const dotenv = require('dotenv');
+const cookieParser = require('cookie-parser');
 const cors = require('cors');
-const jwt = require('jsonwebtoken');
+
+
 const { Svix } = require("svix");
 const svix = new Svix("AUTH_TOKEN");
 const axios = require('axios');
@@ -10,16 +14,31 @@ const Fuse = require("fuse.js");
 const { Index } = require("flexsearch");
 const sw = require('stopword');
 const natural = require("natural");
-require('dotenv').config();
+// db conncection
+const connectDB = require("./src/config/db")
+// auth-Route
+const authRoutes = require('./src/routes/auth.routes');
+
+dotenv.config();
 
 
 const app = express()
 const port = 3000
 
 
+// database connection
+connectDB();
+
+
 // Middleware
-app.use(cors());
+app.use(cookieParser());
 app.use(express.json());
+app.use(cors({
+  origin : "http://localhost:5173",
+  credentials : true
+}));
+
+app.use("/api/auth" , authRoutes);
 
 // Cache setup
 const cache = new NodeCache({ stdTTL: 600 });
