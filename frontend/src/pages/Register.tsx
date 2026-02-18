@@ -14,7 +14,7 @@ export default function Register() {
         try{
             const res = await api.post("/auth/register" , {email , password});
             alert(res.data.message);
-            navigate("/login");
+            navigate("/");
         }catch(err : any){
             alert(err.response?.data?.message || "Server error");
         }

@@ -12,7 +12,7 @@ export default function Login() {
         try {
             const res = await api.post("/auth/login", { email, password });
             alert(res.data.message);
-            navigate("/profile");
+            navigate("/");
         } catch (err: any) {
             alert(err.response?.data?.message || "Server error");
         }
