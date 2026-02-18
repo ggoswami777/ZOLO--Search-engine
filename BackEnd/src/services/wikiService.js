@@ -31,3 +31,7 @@ const document=require("../models/document")
     return newDoc;
   } catch (error) {
     console.error("Error fetching wiki:", error.message);
+  }
+};
+module.exports = { fetchWikiPage };
+
