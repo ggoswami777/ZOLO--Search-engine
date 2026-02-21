@@ -1,6 +1,7 @@
 const axios = require("axios");
 const cheerio = require("cheerio");
 const Document = require("../models/document");
+const {processText}= require("../utils/textProcessor");
 
 /*
   1. Takes a search term
@@ -16,7 +17,7 @@ const crawlFullWikiPage = async (searchTerm) => {
     // Replace spaces with underscore for wiki URL format
     const formattedTerm = searchTerm.replace(/\s+/g, "_");
 
-    // Step 1: Get summary API to retrieve official page URL
+    //Get summary API to retrieve official page URL
     const summaryResponse = await axios.get(
       `https://en.wikipedia.org/api/rest_v1/page/summary/${formattedTerm}`,
       {
@@ -65,13 +66,14 @@ const crawlFullWikiPage = async (searchTerm) => {
       console.log("Document already exists in DB.");
       return existing;
     }
-
+    const tokens=processText(cleanedText);
     // Save new document in DB
     const newDoc = new Document({
       title: pageTitle,
       content: cleanedText,
       source: "Wikipedia",
-      url: pageUrl
+      url: pageUrl,
+      tokens:tokens
     });
 
     await newDoc.save();
