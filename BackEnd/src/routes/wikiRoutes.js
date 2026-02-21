@@ -1,10 +1,15 @@
 const express = require('express');
-const {fetchWikiPage}=require("../services/wikiService")
-
+const {crawlFullWikiPage}=require("../services/wikiService")
 const router = express.Router();
+
 router.get("/crawl/:term", async (req, res) => {
-  const result = await fetchWikiPage(req.params.term);
-  res.json(result);
+  try {
+    const result = await crawlFullWikiPage(req.params.term);
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to crawl page" });
+  }
 });
+
 module.exports = router;
 
