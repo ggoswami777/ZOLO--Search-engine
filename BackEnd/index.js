@@ -17,6 +17,8 @@ const natural = require("natural");
 const connectDB = require("./src/config/db")
 // auth-Route
 const authRoutes = require('./src/routes/auth.routes');
+const rebuildIndex = require("./src/utils/rebuildIndex");
+
 
 dotenv.config();
 
@@ -27,7 +29,9 @@ const port = 3000
 
 // database connection
 connectDB();
-
+connectDB().then(() => {
+  rebuildIndex();
+});
 
 // Middleware
 app.use(cookieParser());

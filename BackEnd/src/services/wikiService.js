@@ -1,8 +1,8 @@
 const axios = require("axios");
 const cheerio = require("cheerio");
 const Document = require("../models/document");
-const {processText}= require("../utils/textProcessor");
-
+const { processText } = require("../utils/textProcessor");
+const index = require("../config/searchIndex");
 /*
   1. Takes a search term
   2. Fetches Wikipedia summary 
@@ -13,7 +13,6 @@ const {processText}= require("../utils/textProcessor");
 
 const crawlFullWikiPage = async (searchTerm) => {
   try {
-
     // Replace spaces with underscore for wiki URL format
     const formattedTerm = searchTerm.replace(/\s+/g, "_");
 
@@ -22,9 +21,9 @@ const crawlFullWikiPage = async (searchTerm) => {
       `https://en.wikipedia.org/api/rest_v1/page/summary/${formattedTerm}`,
       {
         headers: {
-          "User-Agent": "ZoloSearchEngine/1.0"
-        }
-      }
+          "User-Agent": "ZoloSearchEngine/1.0",
+        },
+      },
     );
 
     const pageUrl = summaryResponse.data.content_urls.desktop.page;
@@ -35,14 +34,14 @@ const crawlFullWikiPage = async (searchTerm) => {
     // Fetch full HTML page
     const { data: html } = await axios.get(pageUrl, {
       headers: {
-        "User-Agent": "ZoloSearchEngine/1.0"
-      }
+        "User-Agent": "ZoloSearchEngine/1.0",
+      },
     });
 
     // Load HTML into cheerio
     const $ = cheerio.load(html);
 
-    // Remove unnecessary elements 
+    // Remove unnecessary elements
     $("script, style, table, sup").remove();
 
     /*
@@ -54,7 +53,7 @@ const crawlFullWikiPage = async (searchTerm) => {
       .get()
       .join(" ");
 
-    // Basic cleaning 
+    // Basic cleaning
     const cleanedText = paragraphs.replace(/\s+/g, " ").trim();
 
     console.log("Extracted text length:", cleanedText.length);
@@ -66,22 +65,23 @@ const crawlFullWikiPage = async (searchTerm) => {
       console.log("Document already exists in DB.");
       return existing;
     }
-    const tokens=processText(cleanedText);
+    const tokens = processText(cleanedText);
     // Save new document in DB
     const newDoc = new Document({
       title: pageTitle,
       content: cleanedText,
       source: "Wikipedia",
       url: pageUrl,
-      tokens:tokens
+      tokens: tokens,
     });
 
     await newDoc.save();
-
+    const processedContent = tokens.join(" ");
+    index.add(newDoc._id.toString(), processedContent);
+    console.log("Indexed document:", newDoc.title);
     console.log("Document saved successfully.");
 
     return newDoc;
-
   } catch (error) {
     console.error("Error in crawlFullWikiPage:", error.message);
     throw error;
