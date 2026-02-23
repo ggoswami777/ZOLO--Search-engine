@@ -26,7 +26,6 @@ dotenv.config();
 const app = express()
 const port = 3000
 
-
 // database connection
 connectDB();
 connectDB().then(() => {

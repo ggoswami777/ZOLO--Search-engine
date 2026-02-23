@@ -1,6 +1,7 @@
 import React from "react";
 import SearchBar from "../components/SearchBar";
 import { useNavigate } from "react-router";
+import SearchResults from "../components/searchResults";
 
 const Search: React.FC = () => {
     const navigate=useNavigate();
@@ -45,7 +46,7 @@ const Search: React.FC = () => {
 
         {/* results */}
         <div>
-            results yaha ayenge
+            <SearchResults/>
 
         </div>
 

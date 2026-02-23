@@ -20,7 +20,8 @@ const searchDocuments = async (query) => {
   return orderedDocs.filter(Boolean).map(doc => ({
     _id: doc._id,
     title: doc.title,
-    url: doc.url
+    url: doc.url,
+    content:doc.content
   }));
 };
 
