@@ -1,5 +1,5 @@
 import { Search } from "lucide-react";
-import { useContext, useState } from "react";
+// import { useContext, useState } from "react";
 import React from 'react'
 import { useShop } from "../context/ShopContext";
 import { useNavigate } from "react-router";
@@ -7,21 +7,53 @@ import axios from "axios";
 
 
 const SearchBar: React.FC = () => {
+  const [loading, setLoading] = React.useState(false);
+  const [error, setError] = React.useState("");
   const { searchQuery, setSearchQuery, setWikiSearchData } = useShop();
   const navigate = useNavigate();
 
+
   const handleSearch = async () => {
     if (!searchQuery.trim()) return;
+
     try {
-      const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/wiki/search`, {
-        params: { q: searchQuery }
-      });
+      setLoading(true);
+      setError("");
+  
+
+      const response = await axios.get(
+        `${import.meta.env.VITE_BACKEND_URL}/wiki/search`,
+        { params: { q: searchQuery } }
+      );
+
+      console.log("response.data:", response.data);
+      console.log("Type:", typeof response.data);
+      console.log("Keys:", Object.keys(response.data || {}));
+
       setWikiSearchData(response.data);
       navigate(`/search/${searchQuery}`);
     } catch (error) {
-      console.error("Search error:", error);
+      setError("Something went wrong. Please try again.")
+    }finally{
+      setLoading(false);
     }
   };
+
+
+
+
+  // const handleSearch = async () => {
+  //   if (!searchQuery.trim()) return;
+  //   try {
+  //     const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/wiki/search`, {
+  //       params: { q: searchQuery }
+  //     });
+  //     setWikiSearchData(response.data);
+  //     navigate(`/search/${searchQuery}`);
+  //   } catch (error) {
+  //     console.error("Search error:", error);
+  //   }
+  // };
 
   return (
     <div className="w-full group">
@@ -44,6 +76,19 @@ const SearchBar: React.FC = () => {
           Search
         </button>
       </div>
+
+       {loading && (
+      <p className="text-blue-500 mt-3 text-center">
+        Searching...
+      </p>
+    )}
+
+    {/* 🔴 Error Message */}
+    {error && (
+      <p className="text-red-500 mt-3 text-center">
+        {error}
+      </p>
+    )}
     </div>
   );
 };
