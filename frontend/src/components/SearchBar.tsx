@@ -14,30 +14,70 @@ const SearchBar: React.FC = () => {
 
 
   const handleSearch = async () => {
-    if (!searchQuery.trim()) return;
+  if (!searchQuery.trim()) return;
 
-    try {
-      setLoading(true);
-      setError("");
-  
+  try {
+    setLoading(true);
+    setError("");
 
-      const response = await axios.get(
-        `${import.meta.env.VITE_BACKEND_URL}/wiki/search`,
-        { params: { q: searchQuery } }
-      );
+    const wikiPromise = axios.get(`${import.meta.env.VITE_BACKEND_URL}/wiki/search`, {
+      params: { q: searchQuery }
+    });
 
-      console.log("response.data:", response.data);
-      console.log("Type:", typeof response.data);
-      console.log("Keys:", Object.keys(response.data || {}));
+    const redditPromise = axios.get(`${import.meta.env.VITE_BACKEND_URL}/reddit`, {
+      params: { q: searchQuery, subreddit: "javascript", limit: 10 }
+    });
 
-      setWikiSearchData(response.data);
-      navigate(`/search/${searchQuery}`);
-    } catch (error) {
-      setError("Something went wrong. Please try again.")
-    }finally{
-      setLoading(false);
+    const [wikiResponse, redditResponse] = await Promise.all([wikiPromise, redditPromise]);
+
+    // 🔹 If Wiki is still crawling, wikiResponse.data may be empty
+    if (!wikiResponse.data.length) {
+      console.log("Wiki is crawling, retrying after 2 seconds...");
+      await new Promise(res => setTimeout(res, 2000)); // wait 2 sec
+      const retryWiki = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/wiki/search`, {
+        params: { q: searchQuery }
+      });
+      wikiResponse.data = retryWiki.data;
     }
-  };
+
+    const combinedResults = [...wikiResponse.data, ...redditResponse.data];
+    setWikiSearchData(combinedResults);
+    navigate(`/search/${searchQuery}`);
+  } catch (err) {
+    console.error(err);
+    setError("Something went wrong. Please try again.");
+  } finally {
+    setLoading(false);
+  }
+};
+
+
+
+  // const handleSearch = async () => {
+  //   if (!searchQuery.trim()) return;
+
+  //   try {
+  //     setLoading(true);
+  //     setError("");
+
+
+  //     const response = await axios.get(
+  //       `${import.meta.env.VITE_BACKEND_URL}/wiki/search`,
+  //       { params: { q: searchQuery } }
+  //     );
+
+  //     console.log("response.data:", response.data);
+  //     console.log("Type:", typeof response.data);
+  //     console.log("Keys:", Object.keys(response.data || {}));
+
+  //     setWikiSearchData(response.data);
+  //     navigate(`/search/${searchQuery}`);
+  //   } catch (error) {
+  //     setError("Something went wrong. Please try again.")
+  //   }finally{
+  //     setLoading(false);
+  //   }
+  // };
 
 
 
@@ -77,18 +117,18 @@ const SearchBar: React.FC = () => {
         </button>
       </div>
 
-       {loading && (
-      <p className="text-blue-500 mt-3 text-center">
-        Searching...
-      </p>
-    )}
+      {loading && (
+        <p className="text-blue-500 mt-3 text-center">
+          Searching...
+        </p>
+      )}
 
-    {/* 🔴 Error Message */}
-    {error && (
-      <p className="text-red-500 mt-3 text-center">
-        {error}
-      </p>
-    )}
+      {/* 🔴 Error Message */}
+      {error && (
+        <p className="text-red-500 mt-3 text-center">
+          {error}
+        </p>
+      )}
     </div>
   );
 };
